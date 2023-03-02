@@ -8,6 +8,7 @@
 
 /*
  * the kernel's page table.
+ * 内核中使用的页表
  */
 pagetable_t kernel_pagetable;
 
