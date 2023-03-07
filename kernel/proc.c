@@ -106,6 +106,8 @@ allocpid()
 // If found, initialize state required to run in the kernel,
 // and return with p->lock held.
 // If there are no free procs, or a memory allocation fails, return 0.
+// 在fork(void)和userinit(void)中被调用。
+// 分配一个物理页，作为trapframe *trapframe，并且将这一页赋值给proc结构体中的trapframe字段，并且这一页还会被映射到虚拟地址的最高处减去两页的地方。
 static struct proc*
 allocproc(void)
 {
@@ -229,6 +231,7 @@ uchar initcode[] = {
 };
 
 // Set up first user process.
+// 这个函数调用完毕之后，就会结束了，接下来就会进入到scheduler()函数进行调度执行。
 void
 userinit(void)
 {
@@ -243,6 +246,9 @@ userinit(void)
   p->sz = PGSIZE;
 
   // prepare for the very first "return" from kernel to user.
+  // 设置了当从内核态返回到用户态的时候，用户态的pc。所以可以推断出fork函数中也会有类似的设置epc的代码，但是
+  // 查看fork的代码发现没有，原因是因为epc在调用fork之前就被设置了，因为在处理syscall的时候就会提前把要返回到用户空间
+  // 的那个位置给赋值给epc。所以fork中就不用手动设置了。
   p->trapframe->epc = 0;      // user program counter
   p->trapframe->sp = PGSIZE;  // user stack pointer
 
